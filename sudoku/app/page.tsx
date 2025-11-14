@@ -12,6 +12,8 @@ export default function Home() {
   );
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const [invalidCells, setInvalidCells] = useState<Set<string>>(new Set());
+  const [errorCount, setErrorCount] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     const newBoard = generateBoard(40);
@@ -47,13 +49,14 @@ export default function Home() {
   };
 
   const handleCellClick = (row: number, col: number) => {
+    if (gameOver) return;
     if (initialBoard[row][col] === 0) {
       setSelectedCell({ row, col });
     }
   };
 
   const handleNumberClick = (value: number) => {
-    if (!selectedCell) return;
+    if (!selectedCell || gameOver) return;
 
     const { row, col } = selectedCell;
     const newBoard = board.map(r => [...r]);
@@ -65,11 +68,27 @@ export default function Home() {
 
     if (!isValidMove(row, col, value)) {
       newInvalidCells.add(cellKey);
+      const newErrorCount = errorCount + 1;
+      setErrorCount(newErrorCount);
+      
+      if (newErrorCount >= 3) {
+        setGameOver(true);
+      }
     } else {
       newInvalidCells.delete(cellKey);
     }
 
     setInvalidCells(newInvalidCells);
+  };
+
+  const handleRestart = () => {
+    const newBoard = generateBoard(40);
+    setBoard(newBoard.map(row => [...row]));
+    setInitialBoard(newBoard.map(row => [...row]));
+    setErrorCount(0);
+    setGameOver(false);
+    setInvalidCells(new Set());
+    setSelectedCell(null);
   };
 
   const getCellColor = (row: number, col: number, cell: number): string => {
@@ -86,7 +105,23 @@ export default function Home() {
           Sudoku Generator
         </h1>
         
-        <div className="flex flex-col gap-1">
+        <div className=" text-center">
+          {errorCount} out of 3 wrong answer(s)
+        </div>
+
+        {gameOver && (
+          <div className="text-2xl font-bold text-red-600 dark:text-red-400 text-center">
+            Game Over! You made 3 mistakes.
+            <button
+              onClick={handleRestart}
+              className="ml-4 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              Restart
+            </button>
+          </div>
+        )}
+        
+        <div className={`flex flex-col gap-1 ${gameOver ? 'opacity-50' : ''}`}>
           {board.map((row, i) => (
             <div key={i} className="flex gap-1">
               {row.map((cell, j) => (
@@ -94,11 +129,11 @@ export default function Home() {
                   key={j}
                   onClick={() => handleCellClick(i, j)}
                   className={`w-14 h-14 rounded-md border ${
-                    selectedCell?.row === i && selectedCell?.col === j
+                    selectedCell?.row === i && selectedCell?.col === j && !gameOver
                       ? "border-blue-500 dark:border-blue-400 border-2"
                       : "border-zinc-200 dark:border-zinc-700"
                   } ${
-                    initialBoard[i][j] === 0 ? "cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900" : ""
+                    initialBoard[i][j] === 0 && !gameOver ? "cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900" : ""
                   } text-center text-xl ${getCellColor(i, j, cell)} flex items-center justify-center`}
                 >
                   {cell === 0 ? "" : cell}
@@ -113,7 +148,10 @@ export default function Home() {
             <button
               key={num}
               onClick={() => handleNumberClick(num)}
-              className="w-12 h-12 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xl font-bold text-zinc-900 dark:text-zinc-100 transition-colors"
+              disabled={gameOver}
+              className={`w-12 h-12 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xl font-bold text-zinc-900 dark:text-zinc-100 transition-colors ${
+                gameOver ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               {num}
             </button>

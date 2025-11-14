@@ -76,3 +76,4 @@ export default function generateBoard(difficulty: number = 40): number[][] {
     removeNumbers(board, difficulty);
     return board;
 }
+
