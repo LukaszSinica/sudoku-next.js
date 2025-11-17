@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import generateBoard from "@/utils/generateBoard";
+import generateBoard, { getDailySeed } from "@/utils/generateBoard";
 
 export default function Home() {
   const [board, setBoard] = useState<number[][]>(
@@ -14,9 +14,12 @@ export default function Home() {
   const [invalidCells, setInvalidCells] = useState<Set<string>>(new Set());
   const [errorCount, setErrorCount] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [dailySeed, setDailySeed] = useState<number>(0);
 
   useEffect(() => {
-    const newBoard = generateBoard(40);
+    const seed = getDailySeed();
+    setDailySeed(seed);
+    const newBoard = generateBoard(40, seed);
     setBoard(newBoard.map(row => [...row]));
     setInitialBoard(newBoard.map(row => [...row]));
   }, []);
@@ -82,7 +85,7 @@ export default function Home() {
   };
 
   const handleRestart = () => {
-    const newBoard = generateBoard(40);
+    const newBoard = generateBoard(40, dailySeed);
     setBoard(newBoard.map(row => [...row]));
     setInitialBoard(newBoard.map(row => [...row]));
     setErrorCount(0);
@@ -105,7 +108,7 @@ export default function Home() {
           Sudoku Generator
         </h1>
         
-        <div className=" text-center">
+        <div className="text-center">
           {errorCount} out of 3 wrong answer(s)
         </div>
 
