@@ -1,6 +1,5 @@
-const sudokuNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+export const sudokuNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-// Seeded random number generator
 class SeededRandom {
   private seed: number;
 
@@ -73,14 +72,21 @@ function fillBoard(board: number[][], random: SeededRandom): boolean {
 }
 
 function removeNumbers(board: number[][], difficulty: number, random: SeededRandom): void {
-    let removed = 0;
-    while(removed < difficulty) {
-        const row = Math.floor(random.next() * 9);
-        const col = Math.floor(random.next() * 9);
-        if(board[row][col] !== 0) {
-            board[row][col] = 0;
-            removed++;
+    const positions: [number, number][] = [];
+    for(let i = 0; i < 9; i++) {
+        for(let j = 0; j < 9; j++) {
+            positions.push([i, j]);
         }
+    }
+    
+    for(let i = positions.length - 1; i > 0; i--) {
+        const j = Math.floor(random.next() * (i + 1));
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+    
+    for(let i = 0; i < difficulty && i < positions.length; i++) {
+        const [row, col] = positions[i];
+        board[row][col] = 0;
     }
 }
 
@@ -90,12 +96,15 @@ export function getDailySeed(): number {
     return today.getTime();
 }
 
-export default function generateBoard(difficulty: number = 40, seed?: number): number[][] {
+export default function generateBoard(difficulty: number = 40, seed?: number): { puzzle: number[][], solution: number[][] } {
     const dailySeed = seed ?? getDailySeed();
     const random = new SeededRandom(dailySeed);
     
-    const board: number[][] = Array(9).fill(0).map(() => Array(9).fill(0));
-    fillBoard(board, random);
-    removeNumbers(board, difficulty, random);
-    return board;
+    const solution: number[][] = Array(9).fill(0).map(() => Array(9).fill(0));
+    fillBoard(solution, random);
+    
+    const puzzle = solution.map(row => [...row]);
+    removeNumbers(puzzle, difficulty, random);
+    
+    return { puzzle, solution };
 }
