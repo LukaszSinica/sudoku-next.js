@@ -3,7 +3,6 @@
 A modern, interactive Sudoku game built with Next.js, React, and TypeScript. Features daily puzzle generation, dark mode support, and an intuitive user interface.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black)
-![React](https://img.shields.io/badge/React-19.2.0-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)
 
@@ -21,7 +20,7 @@ A modern, interactive Sudoku game built with Next.js, React, and TypeScript. Fea
 ## Tech Stack
 
 - **Framework**: Next.js 16.0.1 (App Router)
-- **UI Library**: React 19.2.0
+- **UI Library**: Shadcn
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS 4
 - **Fonts**: Geist Sans & Geist Mono (Vercel)
